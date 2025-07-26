@@ -10,9 +10,7 @@ const getStudentController = async (data: ISudentList) => {
   try {
     const rows = await studentModel.listStudentBySearch(data);
     return {
-      data: {
-        user: rows
-      }
+      data: rows
     }
   } catch (error: any) {
     throw error.message ? error.message : error
