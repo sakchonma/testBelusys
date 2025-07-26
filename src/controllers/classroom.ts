@@ -114,7 +114,7 @@ const addStudentInRoom = async (req: Request, res: Response) => {
   try {
     const data: IUpdateStudentInRoom = req.body;
     const result = await addStudentInRoomController(data);
-    return res.status(200).json({ ...result });
+    return res.status(200).json({ status: true, ...result });
   } catch (error: any) {
     return res.status(500).json({
       status: false,
@@ -126,7 +126,7 @@ const removeStudentInRoom = async (req: Request, res: Response) => {
   try {
     const data: IUpdateStudentInRoom = req.body;
     const result = await removeStudentInRoomController(data);
-    return res.status(200).json({ ...result });
+    return res.status(200).json({ status: true, ...result });
   } catch (error: any) {
     return res.status(500).json({
       status: false,

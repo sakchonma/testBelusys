@@ -34,7 +34,7 @@ const listRoomBySearch = async ({
     //           +limit, +offset
     //       ]
     //   );
-    return rows;
+    return "classroomlist";
   } catch (error) {
     console.error('DB error:', error);
     throw error;
@@ -55,7 +55,7 @@ const createRoom = async (data: ICreateRoom) => {
     // );
 
     return {
-      roomid: 1,
+      roomid: data,
     };
   } catch (error) {
     console.error('DB error:', error);
@@ -70,7 +70,7 @@ const updateRoom = async (data: IUpdateRoom) => {
 
     const pool = db.getPool();
     // const [result]: any = await pool.query(sql, values);
-    return {}
+    return data
 
   } catch (error) {
     console.error('DB error:', error);
@@ -79,14 +79,14 @@ const updateRoom = async (data: IUpdateRoom) => {
 
 
 }
-const deleteRoom = async (roomidid: number) => {
+const deleteRoom = async (roomid: number) => {
   try {
     const pool = db.getPool();
-    const [result]: any = await pool.query(
-      `DELETE FROM student WHERE studentid = ?`,
-      [roomidid]
-    );
-    return result
+    // const [result]: any = await pool.query(
+    //   `DELETE FROM student WHERE studentid = ?`,
+    //   [roomidid]
+    // );
+    return roomid
   } catch (error: any) {
     throw {
       status: false,
@@ -102,7 +102,7 @@ const addStudentInRoom = async (data: IUpdateStudentInRoom) => {
 
     const pool = db.getPool();
     // const [result]: any = await pool.query(sql, values);
-    return {}
+    return data
 
   } catch (error) {
     console.error('DB error:', error);
@@ -119,7 +119,7 @@ const removeStudentInRoom = async (data: IUpdateStudentInRoom) => {
 
     const pool = db.getPool();
     // const [result]: any = await pool.query(sql, values);
-    return {}
+    return data
 
   } catch (error) {
     console.error('DB error:', error);

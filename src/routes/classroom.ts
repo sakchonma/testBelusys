@@ -15,8 +15,8 @@ const router = express.Router()
 router.get('/list', getRoomList)
 router.post('/create', createRoomSchema, createRoom)
 router.put('/update', updateRoomSchema, updateRoom)
-router.delete('/delete/:studentid', deleteRoom)
+router.delete('/delete/:roomid', deleteRoom)
 router.put('/add', studentInRoomSchema, addStudentInRoom)
-router.put('/add', studentInRoomSchema, addStudentInRoom)
+router.put('/remove', studentInRoomSchema, removeStudentInRoom)
 
 export default router

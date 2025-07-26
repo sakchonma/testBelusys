@@ -1,4 +1,15 @@
+# Node dependencies
 node_modules/
-dist
-package-lock.json
 
+# Build output
+dist/
+
+# Environment
+.env
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db

@@ -14,5 +14,5 @@ router.get('/list', getStudentList)
 router.post('/create', createStudentSchema, createStudent)
 router.put('/update', updateStudentSchema, updateStudent)
 router.delete('/delete/:studentid', deleteStudent)
-router.get('/dataInsert', getDetailForInsertStudent)
+router.get('/datainsert', getDetailForInsertStudent)
 export default router

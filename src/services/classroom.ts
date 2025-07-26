@@ -69,36 +69,16 @@ const deleteRoomController = async (roomid: number) => {
 }
 const addStudentInRoomController = async (data: IUpdateStudentInRoom) => {
   try {
-    const result: any = await roomModel.updateRoom(data);
-    if (result.affectedRows > 0) {
-      return {
-        status: true,
-        message: 'Update successful',
-      };
-    } else {
-      return {
-        status: false,
-        message: 'No record updated or Room not found',
-      };
-    }
+    const result: any = await roomModel.addStudentInRoom(data);
+    return { data: result }
   } catch (error: any) {
     throw error.message ? error.message : error
   }
 }
 const removeStudentInRoomController = async (data: IUpdateStudentInRoom) => {
   try {
-    const result: any = await roomModel.updateRoom(data);
-    if (result.affectedRows > 0) {
-      return {
-        status: true,
-        message: 'Update successful',
-      };
-    } else {
-      return {
-        status: false,
-        message: 'No record updated or Room not found',
-      };
-    }
+    const result: any = await roomModel.removeStudentInRoom(data);
+    return { data: result }
   } catch (error: any) {
     throw error.message ? error.message : error
   }
