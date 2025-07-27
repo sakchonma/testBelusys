@@ -1,7 +1,15 @@
 import { Request, Response, NextFunction, } from 'express';
-import { ICreateRoom, IRoomList, IUpdateRoom, IUpdateStudentInRoom } from '../type/classroom';
+import {
+  ICreateRoom,
+  IRoomList,
+  IUpdateRoom,
+  IUpdateStudentInRoom,
+  IStudentsWithoutRoomList
+} from '../type/classroom';
 import {
   getClassroomController,
+  getStudentInClassroomController,
+  getStudentsWithoutClassroom,
   createClassroomController,
   updateRoomController,
   deleteRoomController,
@@ -13,8 +21,8 @@ import Joi, { number } from 'joi';
 
 const getRoomList = async (req: Request, res: Response) => {
   try {
-    const { page, limit, roomid, name, gradelevelid } = req.query as unknown as IRoomList;
-    const result = await getClassroomController({ page, limit, roomid, name, gradelevelid });
+    const { page, limit, roomid, name, teacherName } = req.query as unknown as IRoomList;
+    const result = await getClassroomController({ page, limit, roomid, name, teacherName });
     return res.status(200).json({ status: true, ...result });
   } catch (error: any) {
     return res.status(500).json({
@@ -23,19 +31,39 @@ const getRoomList = async (req: Request, res: Response) => {
     });
   }
 }
-
+const getStudentsInClassroom = async (req: Request, res: Response) => {
+  try {
+    const { roomid } = req.params;
+    const result = await getStudentInClassroomController(+roomid);
+    return res.status(200).json({ status: true, ...result });
+  } catch (error: any) {
+    return res.status(500).json({
+      status: false,
+      message: error.message || error,
+    });
+  }
+}
+const getStudentsWithout = async (req: Request, res: Response) => {
+  try {
+    const { name, gradelevel, page, limit } = req.query as unknown as IStudentsWithoutRoomList;
+    const result = await getStudentsWithoutClassroom({ name, gradelevel, page, limit });
+    return res.status(200).json({ status: true, ...result });
+  } catch (error: any) {
+    return res.status(500).json({
+      status: false,
+      message: error.message || error,
+    });
+  }
+}
 const createRoomSchema = (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   const schema = Joi.object({
-    // prefixid: Joi.number().required(),
-    name: Joi.string().required(),
-    // lastname: Joi.string().required(),
-    // genderid: Joi.number().required(),
-    // birthdate: Joi.date().required(),
-    // gradelevelid: Joi.number().required(),
+    classname: Joi.string().required(),
+    academic_year: Joi.number().required(),
+    homeroom_teacher: Joi.string().required(),
   })
 
   validateRequest(req, next, schema)
@@ -46,13 +74,10 @@ const updateRoomSchema = (
   next: NextFunction
 ) => {
   const schema = Joi.object({
-    roomid: Joi.number().required(),
-    name: Joi.string().required(),
-    // firstname: Joi.string().required(),
-    // lastname: Joi.string().required(),
-    // genderid: Joi.number().required(),
-    // birthdate: Joi.date().required(),
-    // gradelevelid: Joi.number().required(),
+    classroomid: Joi.number().required(),
+    classname: Joi.string().required(),
+    academic_year: Joi.number().required(),
+    homeroom_teacher: Joi.string().required(),
   })
 
   validateRequest(req, next, schema)
@@ -63,13 +88,8 @@ const studentInRoomSchema = (
   next: NextFunction
 ) => {
   const schema = Joi.object({
-    roomid: Joi.number().required(),
+    classroomid: Joi.number().required(),
     studentid: Joi.number().required(),
-    // firstname: Joi.string().required(),
-    // lastname: Joi.string().required(),
-    // genderid: Joi.number().required(),
-    // birthdate: Joi.date().required(),
-    // gradelevelid: Joi.number().required(),
   })
 
   validateRequest(req, next, schema)
@@ -126,7 +146,7 @@ const removeStudentInRoom = async (req: Request, res: Response) => {
   try {
     const data: IUpdateStudentInRoom = req.body;
     const result = await removeStudentInRoomController(data);
-    return res.status(200).json({ status: true, ...result });
+    return res.status(200).json({ ...result });
   } catch (error: any) {
     return res.status(500).json({
       status: false,
@@ -136,6 +156,8 @@ const removeStudentInRoom = async (req: Request, res: Response) => {
 }
 export {
   getRoomList,
+  getStudentsInClassroom,
+  getStudentsWithout,
   createRoom,
   updateRoom,
   deleteRoom,

@@ -1,0 +1,79 @@
+/* Container เต็มหน้าจอ กึ่งกลางแนวตั้ง-แนวนอน */
+.homepage-container {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f0f0f0;
+}
+
+/* กล่องขาว ใส่เงา มี padding */
+.homepage-box {
+    background-color: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+    max-width: 500px;
+    width: 100%;
+
+    /* Flex เพื่อเรียงปุ่มในแนวนอน */
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: nowrap;
+    /* ไม่ให้ปุ่มขึ้นบรรทัดใหม่ */
+    flex-direction: row;
+    flex-wrap: nowrap;
+    flex-shrink: 0;
+    flex-grow: 0;
+    flex-basis: auto;
+    flex-flow: row nowrap;
+    flex: none;
+    align-items: center;
+    flex-wrap: nowrap;
+    flex-basis: auto;
+    flex-grow: 0;
+}
+
+/* หัวข้อใหญ่ อยู่เหนือปุ่ม ควรแยกเป็นบล็อกใหม่ */
+/* เพราะตอนนี้ .homepage-box เป็น flex row ทำให้ h1 กับปุ่มอยู่แถวเดียวกัน */
+/* แก้โดยใช้ flex-direction: column; แทนใน .homepage-box และเพิ่ม wrapper ปุ่ม */
+
+.homepage-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.homepage-box h1 {
+    font-size: 28px;
+    margin-bottom: 30px;
+    color: #333;
+}
+
+/* แยกกลุ่มปุ่มให้อยู่ในแถวเดียว */
+.button-group {
+    display: flex;
+    gap: 16px;
+    width: 100%;
+    max-width: 500px;
+}
+
+/* ปุ่มให้ขนาดเท่ากัน */
+.button-group button {
+    flex: 1 1 0;
+    padding: 12px 0;
+    font-size: 16px;
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+.button-group button:hover {
+    background-color: #1e40af;
+}

@@ -3,19 +3,29 @@ export interface IRoomList {
   limit?: number,
   roomid?: String,
   name?: String,
-  gradelevelid?: String,
+  teacherName?: String,
+}
+export interface IStudentsWithoutRoomList {
+  gradelevel?: string;
+  name?: String,
+  page?: number,
+  limit?: number,
 }
 
 export interface ICreateRoom {
-  name?: String,
+  classname?: String,
+  academic_year?: Number,
+  homeroom_teacher?: String,
 }
 
 export interface IUpdateRoom {
-  roomid?: number,
-  name?: String,
+  classroomid?: Number,
+  classname?: String,
+  academic_year?: Number,
+  homeroom_teacher?: String,
 }
 
 export interface IUpdateStudentInRoom {
-  roomid?: number,
+  classroomid?: number,
   studentid?: number,
 }

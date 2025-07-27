@@ -17,21 +17,29 @@ const listStudentBySearch = async ({
     const offset = (page - 1) * limit;
 
     const pool = db.getPool();
-    const searchName = `%${name}%`;
     const [rows] = await pool.query(
-      `SELECT * FROM quizdev_cc.student
-       WHERE 
-         (? = '' OR studentid = ?) AND
-         (? = '' OR gradelevelid = ?) AND
-         (? = '' OR firstname LIKE ? OR lastname LIKE ?)
-       LIMIT ? OFFSET ?`,
+      `SELECT 
+      s.*,
+      g.levelname,
+      p.prefixname,
+      gd.gendername
+   FROM student s
+   LEFT JOIN gradelevel g ON s.gradelevelid = g.gradelevelid
+   LEFT JOIN prefix p ON s.prefixid = p.prefixid
+   LEFT JOIN gender gd ON s.genderid = gd.genderid
+   WHERE 
+     (? = '' OR s.studentid = ?) AND
+     (? = '' OR s.gradelevelid = ?) AND
+     (? = '' OR s.firstname LIKE ? OR s.lastname LIKE ?)
+   LIMIT ? OFFSET ?`,
       [
         studentid, studentid,
         gradelevelid, gradelevelid,
-        name, searchName, searchName,
+        name, `%${name}%`, `%${name}%`,
         +limit, +offset
       ]
     );
+
     return rows;
   } catch (error) {
     console.error('DB error:', error);
@@ -118,7 +126,7 @@ const updateStudent = async (data: IStudentUpdate) => {
 
     values.push(studentid);
 
-    const sql = `UPDATE quizdev_cc.student SET ${updates.join(", ")} WHERE studentid = ?`;
+    const sql = `UPDATE student SET ${updates.join(", ")} WHERE studentid = ?`;
 
     const pool = db.getPool();
     const [result]: any = await pool.query(sql, values);
@@ -134,11 +142,35 @@ const updateStudent = async (data: IStudentUpdate) => {
 const deleteStudent = async (studentid: number) => {
   try {
     const pool = db.getPool();
+
+    const [exists]: any = await pool.query(
+      `SELECT COUNT(*) AS count FROM student_classroom WHERE studentid = ?`,
+      [studentid]
+    );
+
+    if (exists[0].count > 0) {
+      return {
+        status: false,
+        message: 'Cannot delete student because they are assigned to a classroom.',
+      };
+    }
+
     const [result]: any = await pool.query(
       `DELETE FROM student WHERE studentid = ?`,
       [studentid]
     );
-    return result
+
+    if (result.affectedRows > 0) {
+      return {
+        status: true,
+        message: 'Student deleted successfully',
+      };
+    } else {
+      return {
+        status: false,
+        message: 'Student not found',
+      };
+    }
   } catch (error: any) {
     throw {
       status: false,
@@ -146,10 +178,11 @@ const deleteStudent = async (studentid: number) => {
     };
   }
 }
+
 const getGenders = async () => {
   try {
     const pool = db.getPool();
-    const [rows] = await pool.query(`SELECT * FROM quizdev_cc.student`,);
+    const [rows] = await pool.query(`SELECT * FROM gender`,);
     return rows;
   } catch (error) {
     console.error('DB error:', error);
@@ -159,7 +192,7 @@ const getGenders = async () => {
 const getRooms = async () => {
   try {
     const pool = db.getPool();
-    const [rows] = await pool.query(`SELECT * FROM quizdev_cc.student`,);
+    const [rows] = await pool.query(`SELECT * FROM classroom`,);
     return rows;
   } catch (error) {
     console.error('DB error:', error);
@@ -169,7 +202,7 @@ const getRooms = async () => {
 const getGradelevels = async () => {
   try {
     const pool = db.getPool();
-    const [rows] = await pool.query(`SELECT * FROM quizdev_cc.student`,);
+    const [rows] = await pool.query(`SELECT * FROM gradelevel`,);
     return rows;
   } catch (error) {
     console.error('DB error:', error);
@@ -179,7 +212,7 @@ const getGradelevels = async () => {
 const prefixs = async () => {
   try {
     const pool = db.getPool();
-    const [rows] = await pool.query(`SELECT * FROM quizdev_cc.student`,);
+    const [rows] = await pool.query(`SELECT * FROM prefix`,);
     return rows;
   } catch (error) {
     console.error('DB error:', error);

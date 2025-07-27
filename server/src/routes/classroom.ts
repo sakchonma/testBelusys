@@ -1,6 +1,8 @@
 import express from "express"
 import {
   getRoomList,
+  getStudentsInClassroom,
+  getStudentsWithout,
   createRoom,
   updateRoom,
   deleteRoom,
@@ -13,6 +15,8 @@ import {
 const router = express.Router()
 
 router.get('/list', getRoomList)
+router.get('/studentinroom/:roomid', getStudentsInClassroom)
+router.get('/studentwithout', getStudentsWithout)
 router.post('/create', createRoomSchema, createRoom)
 router.put('/update', updateRoomSchema, updateRoom)
 router.delete('/delete/:roomid', deleteRoom)

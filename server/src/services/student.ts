@@ -47,17 +47,7 @@ const updateStudentController = async (data: IStudentUpdate) => {
 const deleteStudentController = async (studentid: number) => {
   try {
     const result: any = await studentModel.deleteStudent(studentid);
-    if (result.affectedRows > 0) {
-      return {
-        status: true,
-        message: 'Student deleted successfully',
-      };
-    } else {
-      return {
-        status: false,
-        message: 'Student not found',
-      };
-    }
+    return result
   } catch (error: any) {
     throw error.message ? error.message : error
   }
