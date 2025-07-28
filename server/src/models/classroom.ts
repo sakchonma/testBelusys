@@ -4,9 +4,8 @@ import {
   ICreateRoom,
   IUpdateRoom,
   IUpdateStudentInRoom,
-  IStudentsWithoutRoomList
+  IStudentsWithoutRoomList,
 } from '../type/classroom';
-
 
 const listRoomBySearch = async ({
   page = 1,
@@ -103,7 +102,25 @@ const getStudentsWithoutClassroom = async ({
   }
 };
 
+const checkCreateRoomAlready = async (data: ICreateRoom) => {
+  try {
+    const {
+      classname,
+      academic_year,
+    } = data;
 
+    const pool = db.getPool();
+    const [rows] = await pool.query(
+      `SELECT classroomid FROM classroom WHERE classname = ? AND academic_year = ?`,
+      [classname, academic_year]
+    );
+
+    return rows
+  } catch (error) {
+    console.error('DB error:', error);
+    throw error;
+  }
+};
 
 const createRoom = async (data: ICreateRoom) => {
   try {
@@ -114,20 +131,10 @@ const createRoom = async (data: ICreateRoom) => {
     } = data;
 
     const pool = db.getPool();
-    const [existing] = await pool.query(
-      `SELECT classroomid FROM classroom WHERE classname = ? AND academic_year = ?`,
-      [classname, academic_year]
-    );
-
-    if ((existing as any[]).length > 0) {
-      throw new Error(`Classroom "${classname}" for academic year "${academic_year}" already exists.`);
-    }
-
     const [result]: any = await pool.query(
       `INSERT INTO classroom (classname, academic_year, homeroom_teacher) VALUES (?, ?, ?)`,
       [classname, academic_year, homeroom_teacher]
     );
-
     return {
       classroomid: result.insertId,
     };
@@ -146,17 +153,6 @@ const updateRoom = async (data: IUpdateRoom) => {
       homeroom_teacher,
     } = data;
     const pool = db.getPool();
-    const [existing] = await pool.query(
-      `SELECT classroomid FROM classroom WHERE classname = ? AND academic_year = ?`,
-      [classname, academic_year]
-    );
-
-    if ((existing as any[]).length > 0) {
-      return {
-        status: false,
-        message: `Classroom "${classname}" for academic year "${academic_year}" already exists.`,
-      };
-    }
     const updates: string[] = [];
     const values: any[] = [];
 
@@ -184,17 +180,7 @@ const updateRoom = async (data: IUpdateRoom) => {
     const sql = `UPDATE classroom SET ${updates.join(", ")} WHERE classroomid = ?`;
 
     const [result]: any = await pool.query(sql, values);
-    if (result.affectedRows > 0) {
-      return {
-        status: true,
-        message: 'Update successful',
-      };
-    } else {
-      return {
-        status: false,
-        message: 'No record updated or Room not found',
-      };
-    }
+    return result
   } catch (error) {
     console.error('DB error:', error);
     throw error;
@@ -239,8 +225,39 @@ const deleteRoom = async (roomid: number) => {
     };
   }
 };
+const findLevelnameByIdStudent = async (studentid: number) => {
+  try {
 
-const addStudentInRoom = async (data: IUpdateStudentInRoom) => {
+    const pool = db.getPool();
+    const [rows]: any = await pool.query(
+      `SELECT gl.levelname FROM student s JOIN gradelevel gl ON s.gradelevelid = gl.gradelevelid WHERE s.studentid = ?`,
+      [studentid]
+    );
+    return rows
+  } catch (error) {
+    console.error('DB error:', error);
+    throw {
+      message: error
+    };
+  }
+};
+const findClassnameById = async (classroomid: number) => {
+  try {
+
+    const pool = db.getPool();
+    const [rows]: any = await pool.query(
+      `SELECT classname FROM classroom WHERE classroomid = ?`,
+      [classroomid]
+    );
+    return rows
+  } catch (error) {
+    console.error('DB error:', error);
+    throw {
+      message: error
+    };
+  }
+};
+const checkStudentInRoom = async (data: IUpdateStudentInRoom) => {
   try {
     const {
       classroomid,
@@ -248,58 +265,30 @@ const addStudentInRoom = async (data: IUpdateStudentInRoom) => {
     } = data;
 
     const pool = db.getPool();
-    const [studentRows]: any = await pool.query(
-      `SELECT gl.levelname FROM student s JOIN gradelevel gl ON s.gradelevelid = gl.gradelevelid WHERE s.studentid = ?`,
-      [studentid]
-    );
-
-    if (studentRows.length === 0) {
-      return {
-        status: false,
-        data: { message: 'Student not found.' }
-      };
-    }
-    const studentGradelevel = studentRows[0].levelname; // เช่น "ป.1"
-
-    // 2. ดึง classname ของ classroom
-    const [classroomRows]: any = await pool.query(
-      `SELECT classname FROM classroom WHERE classroomid = ?`,
-      [classroomid]
-    );
-
-    if (classroomRows.length === 0) {
-      return {
-        status: false,
-        data: { message: 'Classroom not found.' }
-      };
-    }
-    const classname = classroomRows[0].classname;
-
-    const classroomGradelevel = classname.substring(0, 3);
-
-    if (studentGradelevel !== classroomGradelevel) {
-      return {
-        status: false,
-        data: { message: 'Student grade level does not match classroom grade level.' }
-      };
-    }
-
-    const [existing] = await pool.query(
+    const [rows] = await pool.query(
       `SELECT * FROM student_classroom WHERE studentid = ? AND classroomid = ?`,
       [studentid, classroomid]
-    );
-    if ((existing as any[]).length > 0) {
-      return {
-        status: false,
-        data: { message: 'Student is already in the classroom.' },
-      };
-    }
+    )
 
+    return rows
+  } catch (error) {
+    console.error('DB error:', error);
+    throw {
+      message: error
+    };
+  }
+};
+const addStudentInRoom = async (data: IUpdateStudentInRoom) => {
+  try {
+    const {
+      classroomid,
+      studentid,
+    } = data;
+    const pool = db.getPool();
     await pool.query(
       `INSERT INTO student_classroom (studentid, classroomid) VALUES (?, ?)`,
       [studentid, classroomid]
     );
-
     return {
       status: true,
       data: { message: 'Student added to classroom.' }
@@ -344,5 +333,9 @@ export default {
   updateRoom,
   deleteRoom,
   addStudentInRoom,
-  removeStudentInRoom
+  removeStudentInRoom,
+  checkCreateRoomAlready,
+  findLevelnameByIdStudent,
+  findClassnameById,
+  checkStudentInRoom
 };

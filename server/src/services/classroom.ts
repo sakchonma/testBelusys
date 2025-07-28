@@ -4,7 +4,7 @@ import {
   ICreateRoom,
   IUpdateRoom,
   IUpdateStudentInRoom,
-  IStudentsWithoutRoomList
+  IStudentsWithoutRoomList,
 } from '../type/classroom'
 import roomModel from '../models/classroom';
 
@@ -40,8 +40,16 @@ const getStudentsWithoutClassroom = async (data: IStudentsWithoutRoomList) => {
 };
 const createClassroomController = async (data: ICreateRoom) => {
   try {
+    const checkRoom = await roomModel.checkCreateRoomAlready(data);
+    if ((checkRoom as any[]).length > 0) {
+      return {
+        status: false,
+        message: `Classroom "${data.classname}" for academic year "$data.{academic_year}" already exists.`,
+      };
+    }
     const result = await roomModel.createRoom(data);
     return {
+      status: true,
       data: result
     }
   } catch (error: any) {
@@ -50,8 +58,25 @@ const createClassroomController = async (data: ICreateRoom) => {
 }
 const updateRoomController = async (data: IUpdateRoom) => {
   try {
+    const checkRoom = await roomModel.checkCreateRoomAlready(data);
+    if ((checkRoom as any[]).length > 0) {
+      return {
+        status: false,
+        message: `Classroom "${data.classname}" for academic year "$data.{academic_year}" already exists.`,
+      };
+    }
     const result: any = await roomModel.updateRoom(data);
-    return result
+    if (result.affectedRows > 0) {
+      return {
+        status: true,
+        message: 'Update successful',
+      };
+    } else {
+      return {
+        status: false,
+        message: 'No record updated or Room not found',
+      };
+    }
   } catch (error: any) {
     throw error.message ? error.message : error
   }
@@ -66,6 +91,36 @@ const deleteRoomController = async (roomid: number) => {
 }
 const addStudentInRoomController = async (data: IUpdateStudentInRoom) => {
   try {
+    const studentRows: any = await roomModel.findLevelnameByIdStudent(data.studentid)
+    if (studentRows.length === 0) {
+      return {
+        status: false,
+        data: { message: 'Student not found.' }
+      }
+    }
+    const classroomRows: any = await roomModel.findClassnameById(data.classroomid)
+    if (classroomRows.length === 0) {
+      return {
+        status: false,
+        data: { message: 'Classroom not found.' }
+      };
+    }
+    const studentGradelevel = studentRows[0].levelname;
+    const classname = classroomRows[0].classname;
+    const classroomGradelevel = classname.substring(0, 3);
+    if (studentGradelevel !== classroomGradelevel) {
+      return {
+        status: false,
+        data: { message: 'Student grade level does not match classroom grade level.' }
+      };
+    }
+    const checkStudentInRoom: any = await roomModel.checkStudentInRoom(data)
+    if ((checkStudentInRoom as any[]).length > 0) {
+      return {
+        status: false,
+        data: { message: 'Student is already in the classroom.' },
+      };
+    }
     const result: any = await roomModel.addStudentInRoom(data);
     return result
   } catch (error: any) {

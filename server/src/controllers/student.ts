@@ -71,7 +71,7 @@ const createStudent = async (req: Request, res: Response) => {
   try {
     const data: ISudentCreate = req.body;
     const result = await createStudentController(data);
-    return res.status(200).json({ status: true, ...result });
+    return res.status(200).json({ ...result });
   } catch (error: any) {
     return res.status(500).json({
       status: false,

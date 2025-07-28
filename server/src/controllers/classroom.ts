@@ -98,7 +98,7 @@ const createRoom = async (req: Request, res: Response) => {
   try {
     const data: ICreateRoom = req.body;
     const result = await createClassroomController(data);
-    return res.status(200).json({ status: true, ...result });
+    return res.status(200).json({ ...result });
   } catch (error: any) {
     return res.status(500).json({
       status: false,

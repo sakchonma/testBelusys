@@ -139,7 +139,7 @@ const StudentModal: React.FC<StudentModalProps> = ({
                 onSuccess();
                 onClose();
             } else {
-                alert("Operation failed");
+                alert(json.message);
             }
         } catch (err) {
             alert("Error: " + err);

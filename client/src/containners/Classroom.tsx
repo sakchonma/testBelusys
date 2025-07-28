@@ -95,7 +95,7 @@ const ClassroomPage = () => {
                 alert(json.message || "Deleted successfully");
                 fetchClassrooms();
             } else {
-                alert("Delete failed");
+                alert(json.message || "Delete failed");
             }
         } catch (error) {
             console.error(error);

@@ -26,6 +26,6 @@ export interface IUpdateRoom {
 }
 
 export interface IUpdateStudentInRoom {
-  classroomid?: number,
-  studentid?: number,
+  classroomid: number,
+  studentid: number,
 }

@@ -48,6 +48,32 @@ const listStudentBySearch = async ({
 
 
 };
+const checkDuplicateName = async (firstname: string, lastname: string) => {
+  try {
+    const pool = db.getPool();
+    const [rows]: any = await pool.query(
+      `SELECT studentid FROM student WHERE firstname = ? AND lastname = ?`,
+      [firstname, lastname]
+    )
+    return rows;
+  } catch (error) {
+    console.error('DB error:', error);
+    throw error;
+  }
+}
+const checkStudentId = async (studentId: number) => {
+  try {
+    const pool = db.getPool();
+    const [rows]: any = await pool.query(
+      `SELECT studentid FROM student WHERE studentid = ?`,
+      [studentId]
+    )
+    return rows;
+  } catch (error) {
+    console.error('DB error:', error);
+    throw error;
+  }
+}
 const createStudent = async (data: ISudentCreate) => {
   try {
     const {
@@ -72,8 +98,6 @@ const createStudent = async (data: ISudentCreate) => {
     console.error('DB error:', error);
     throw error;
   }
-
-
 }
 const updateStudent = async (data: IStudentUpdate) => {
   try {
@@ -139,38 +163,30 @@ const updateStudent = async (data: IStudentUpdate) => {
 
 
 }
-const deleteStudent = async (studentid: number) => {
+const checkAssigned = async (studentid: number) => {
   try {
     const pool = db.getPool();
-
-    const [exists]: any = await pool.query(
+    const [rows]: any = await pool.query(
       `SELECT COUNT(*) AS count FROM student_classroom WHERE studentid = ?`,
       [studentid]
     );
+    return rows
 
-    if (exists[0].count > 0) {
-      return {
-        status: false,
-        message: 'Cannot delete student because they are assigned to a classroom.',
-      };
-    }
-
+  } catch (error: any) {
+    throw {
+      status: false,
+      message: error.message || 'Error deleting student',
+    };
+  }
+}
+const deleteStudent = async (studentid: number) => {
+  try {
+    const pool = db.getPool();
     const [result]: any = await pool.query(
       `DELETE FROM student WHERE studentid = ?`,
       [studentid]
     );
-
-    if (result.affectedRows > 0) {
-      return {
-        status: true,
-        message: 'Student deleted successfully',
-      };
-    } else {
-      return {
-        status: false,
-        message: 'Student not found',
-      };
-    }
+    return result
   } catch (error: any) {
     throw {
       status: false,
@@ -228,4 +244,7 @@ export default {
   getRooms,
   getGradelevels,
   prefixs,
+  checkAssigned,
+  checkDuplicateName,
+  checkStudentId
 }

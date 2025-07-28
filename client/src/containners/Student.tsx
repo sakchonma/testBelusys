@@ -78,7 +78,7 @@ const StudentPage = () => {
       alert("Deleted successfully");
       listStudents();
     } else {
-      alert("Delete failed");
+      alert(json.message || "Delete failed");
     }
   };
 
@@ -86,7 +86,7 @@ const StudentPage = () => {
     <div style={{ padding: 20 }}>
       <h1>Student Management</h1>
 
-      <div style={{ marginBottom: 20 }}>
+      <div style={{ marginBottom: 20, display: "flex", gap: 10 }}>
         <input
           type="text"
           placeholder="Student ID"
@@ -123,6 +123,9 @@ const StudentPage = () => {
         >
           Create Student
         </button>
+      </div>
+      <div style={{ marginBottom: 20 }}>
+
       </div>
 
       <table border={1} cellPadding={5} cellSpacing={0} style={{ width: "100%", textAlign: "left" }}>

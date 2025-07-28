@@ -1,15 +1,15 @@
 export interface ISudentList {
     page?: number,
     limit?: number,
-    studentid?: String,
-    name?: String,
-    gradelevelid?: String,
+    studentid?: string,
+    name?: string,
+    gradelevelid?: string,
 }
 
 export interface ISudentCreate {
     prefixid?: number,
-    firstname?: String,
-    lastname?: String,
+    firstname: string,
+    lastname: string,
     genderid?: number,
     birthdate?: Date,
     gradelevelid?: number,
@@ -18,8 +18,8 @@ export interface ISudentCreate {
 export interface IStudentUpdate {
     studentid: number;
     prefixid?: number;
-    firstname?: string;
-    lastname?: string;
+    firstname: string;
+    lastname: string;
     genderid?: number;
     birthdate?: Date;
     gradelevelid?: number;
