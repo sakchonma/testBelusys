@@ -1,4 +1,3 @@
-/* Reset และตั้งค่าพื้นฐาน */
 html,
 body,
 #root {
@@ -10,14 +9,12 @@ body,
   color: #222;
 }
 
-/* ปรับ layout เริ่มต้น */
 body {
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-/* ลิงก์ */
 a {
   font-weight: 500;
   color: #2563eb;
@@ -28,14 +25,12 @@ a:hover {
   color: #1e40af;
 }
 
-/* หัวข้อ */
 h1 {
   font-size: 2.5em;
   margin-bottom: 20px;
   text-align: center;
 }
 
-/* ปุ่ม */
 button {
   border-radius: 8px;
   border: 1px solid transparent;
